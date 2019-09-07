@@ -8,7 +8,7 @@ Args:
 - Check .../x64/Debug/docs.html
 
 Attention:
-- OpenCV is required. You have to add required headers and dll-s (opencv_world401.dll, opencv_world401d.dll) to your project
+- OpenCV is required. You have to drop/include required headers and dll-s (opencv_world401.dll, opencv_world401d.dll) to your project
 
 Credits:
 - Jody Redlot (code)
