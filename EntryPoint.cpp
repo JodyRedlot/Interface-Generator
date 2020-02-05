@@ -10,8 +10,10 @@
 using namespace cv;
 using namespace std;
 
+string btnFormats[3] = { "%dx%dkey%dN.png", "%dx%dkey%dO.png", "%dx%dkey%dC.png" };
+
 int w, h, type, additional;
-Mat result(1,1, CV_8UC4);
+Mat result(1, 1, CV_8UC4);
 char fileName[256];
 
 void Set(Mat mat, int posX, int posY)
@@ -25,25 +27,32 @@ void Set(Mat mat, int posX, int posY)
 
 void SetNResize(Mat mat, int posX, int posY, int resX, int resY)
 {
-	try	{ resize(mat, mat, Size(resX, resY)); }
-	catch (cv::Exception & e){ cerr << e.msg << endl; }
+	try { resize(mat, mat, Size(resX, resY)); }
+	catch (cv::Exception & e) { cerr << e.msg << endl; }
 
 	Set(mat, posX, posY);
 }
 
 void ResizeCanvas(int w, int h)
 {
-	try	{ resize(result, result, Size(w, h)); }
+	try { resize(result, result, Size(w, h)); }
 	catch (cv::Exception & e) { cerr << e.msg << endl; }
 }
 
 int main(int argc, char* argv[])
 {
-	type = atoi(argv[1]), w = atoi(argv[2]);
-	if(argc == 4) h = atoi(argv[3]);
-	if(argc == 5) additional = atoi(argv[4]);
+	if (argc < 3)
+	{
+		printf("Error during getting arguments!\n\n");
+		system("pause");
+		return 0;
+	}
 
-	if(type == 0 || type == 1 || type == 2)
+	type = atoi(argv[1]), w = atoi(argv[2]);
+	if (argc == 4) h = atoi(argv[3]);
+	if (argc == 5) additional = atoi(argv[4]);
+
+	if (type == 0 || type == 1 || type == 2 || type == 5 || type == 6)
 	{
 		Mat image[9];
 		string folder;
@@ -51,6 +60,8 @@ int main(int argc, char* argv[])
 		if (type == 0)	folder = "Frame/";
 		else if (type == 1) folder = "FrameDehilight/";
 		else if (type == 2) folder = "SelectedDisable/";
+		else if (type == 5) folder = "FrameBuff/";
+		else if (type == 6) folder = "FrameBuffBW/";
 
 		image[0] = imread(folder + "lt.png", -1);
 		image[1] = imread(folder + "ct.png", -1);
@@ -66,19 +77,19 @@ int main(int argc, char* argv[])
 
 		Set(image[0], 0, 0);
 
-		SetNResize(image[1], image[0].size().width, 0, 
+		SetNResize(image[1], image[0].size().width, 0,
 			w - (image[0].size().width + image[2].size().width), image[1].size().height);
 
 		Set(image[2], w - image[2].size().width, 0);
 
-		SetNResize(image[3], 0, image[0].size().height, image[3].size().width, 
+		SetNResize(image[3], 0, image[0].size().height, image[3].size().width,
 			h - (image[0].size().height + image[6].size().height));
 
 		SetNResize(image[4], image[0].size().width, image[0].size().height,
 			w - (image[3].size().width + image[5].size().width),
 			h - (image[1].size().height + image[7].size().height));
 
-		SetNResize(image[5], w - image[5].size().width, image[2].size().height, 
+		SetNResize(image[5], w - image[5].size().width, image[2].size().height,
 			image[5].size().width, h - (image[2].size().height + image[8].size().height));
 
 		Set(image[6], 0, h - image[6].size().height);
@@ -108,7 +119,7 @@ int main(int argc, char* argv[])
 		image[6] = imread(folder + "rn.png", -1);
 		image[7] = imread(folder + "ro.png", -1);
 		image[8] = imread(folder + "rc.png", -1);
-		
+
 		ResizeCanvas(w, image[0].size().height);
 
 		for (int a = -1; a < 2; a++)
@@ -120,13 +131,10 @@ int main(int argc, char* argv[])
 
 			Set(image[a + 7], w - image[a + 7].size().width, 0);
 
-			if(a == -1)	sprintf(fileName, "%dx%dkey%dN.png", w, image[a + 1].size().height, type);
-			else if (a == 0)	sprintf(fileName, "%dx%dkey%dO.png", w, image[a + 1].size().height, type);
-			else if (a == 1)	sprintf(fileName, "%dx%dkey%dC.png", w, image[a + 1].size().height, type);
-
+			sprintf(fileName, btnFormats[a + 1].c_str(), w, image[a + 1].size().height, type);
 			cv::imwrite(fileName, result);
 		}
 	}
- 	
+
 	return 1;
 }
